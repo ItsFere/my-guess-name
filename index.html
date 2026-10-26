@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Угадай Число</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #1e293b;
+      font-family: Segoe UI, Roboto, Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      background-color: #293548;
+      border: 1px solid #334155;
+      padding: 30px 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    h1 {
+      color: #f8fafc;
+      margin-bottom: 15px;
+    }
+
+    .instruction {
+      color: #f8fafc;
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      font-family: inherit;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      background-color: #0f172a;
+      color: #f8fafc;
+      border: none;
+      outline: none;
+      padding: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: bold;
+      padding: 8px 24px;
+      border: none;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .btn-guess {
+      background-color: #3b82f6;
+      color: white;
+    }
+    .btn-guess:hover { background-color: #2563eb; }
+
+    .btn-new {
+      background-color: #475569;
+      color: #cbd5e1;
+      margin-top: 10px;
+    }
+    .btn-new:hover { background-color: #334155; }
+    .btn-new.active {
+      background-color: #10b981;
+      color: white;
+    }
+
+    .btn-exit {
+      background-color: #ef4444;
+      color: white;
+      margin-top: 15px;
+      padding: 6px 16px;
+    }
+    .btn-exit:hover { background-color: #dc2626; }
+
+    .feedback {
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 15px;
+      min-height: 24px;
+    }
+
+    .success { color: #10b981 !important; }
+    .higher { color: #f97316 !important; }
+    .lower { color: #3b82f6 !important; }
+
+    .hint {
+      color: #94a3b8;
+      font-size: 11px;
+      margin-top: 20px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Угадай Число</h1>
+    <div class="instruction">Я загадал число от 1 до 100.<br>Попробуй его угадать!</div>
+
+    <input type="text" id="guessInput" placeholder="Введи число" autocomplete="off">
+
+    <button class="btn-guess" onclick="checkGuess()">Угадать</button>
+
+    <div id="feedback" class="feedback"></div>
+
+    <button id="newGameBtn" class="btn-new" disabled onclick="resetGame()">Новая игра</button>
+
+    <button class="btn-exit" onclick="exitGame()">Выйти из игры</button>
+
+    <div class="hint">Нажмите ESC для выхода</div>
+  </div>
+
+  <script>
+    let secretNumber = Math.floor(Math.random() * 100) + 1;
+    let attempts = 0;
+
+    const input = document.getElementById('guessInput');
+    const feedback = document.getElementById('feedback');
+    const newGameBtn = document.getElementById('newGameBtn');
+
+    function checkGuess() {
+      const rawVal = input.value.trim();
+      if (!rawVal) return;
+
+      const guess = Number(rawVal);
+      if (isNaN(guess)) {
+        showFeedback('Пожалуйста, введи целое число.', 'higher');
+        return;
+      }
+
+      attempts++;
+
+      if (guess < secretNumber) {
+        showFeedback('📈 Моё число больше.', 'higher');
+      } else if (guess > secretNumber) {
+        showFeedback('📉 Моё число меньше.', 'lower');
+      } else {
+        const message = `🎉 Победа! Ты угадал число ${secretNumber} за ${attempts} попыток!`;
+        showFeedback('🎉 Победа!', 'success');
+        input.disabled = true;
+        document.querySelector('.btn-guess').disabled = true;
+        newGameBtn.classList.add('active');
+        newGameBtn.disabled = false;
+        alert(message);
+      }
+
+      input.value = '';
+      input.focus();
+    }
+
+    function showFeedback(text, styleClass) {
+      feedback.textContent = text;
+      feedback.className = 'feedback ' + styleClass;
+    }
+
+    function resetGame() {
+      secretNumber = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      input.disabled = false;
+      document.querySelector('.btn-guess').disabled = false;
+      newGameBtn.classList.remove('active');
+      newGameBtn.disabled = true;
+      feedback.textContent = '';
+      feedback.className = 'feedback';
+      input.value = '';
+      input.focus();
+      document.querySelector('.instruction').textContent = 'Я загадал число от 1 до 100.\nПопробуй его угадать!';
+    }
+
+    function exitGame() {
+      if (confirm('Вы действительно хотите выйти из игры?')) {
+        window.close();
+      }
+    }
+
+    // Поддержка Enter
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkGuess();
+    });
+
+    // Поддержка ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') exitGame();
+    });
+
+    input.focus();
+  </script>
+</body>
+</html>
